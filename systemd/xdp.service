@@ -1,0 +1,11 @@
+[Unit]
+Description=Start a X display manager
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/bash -l -c xdp
+
+[Install]
+RequiredBy=graphical.target
+

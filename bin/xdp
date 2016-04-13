@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# default monitor is LVDS1
+MONITOR=eDP1
+
+# functions to switch from LVDS1 to VGA and vice versa
+function ActivateHDMI {
+    echo "Activating HDMI1"
+    xrandr --output HDMI1 --mode 1920x1080 --primary --output eDP1 --mode 1440x900 --pos 1920x380
+    MONITOR=HDMI1
+}
+function DeactivateHDMI {
+    echo "Deactivating HDMI1"
+    xrandr --output HDMI1 --off --output eDP1 --mode 1440x900 --pos 0x0 --primary
+    MONITOR=eDP1
+}
+
+# functions to check if VGA is connected and in use
+function HDMIActive {
+    [ $MONITOR = "HDMI1" ]
+}
+function HDMIConnected {
+    [ $(cat /sys/class/drm/card0-HDMI-A-1/status) = "connected" ]
+}
+
+function UpdateWallpaper {
+    ps aux | grep Xorg | awk '{print $1}' | uniq | perl -p -e "s/\n/\0/;" | xargs -d '\n' -0 -I user sudo -H -u user ~/.fehbg
+}
+
+# actual script
+while true
+do
+    if ! HDMIActive && HDMIConnected
+    then
+        ActivateHDMI
+	UpdateWallpaper
+    fi
+
+    if HDMIActive && ! HDMIConnected
+    then
+        DeactivateHDMI
+	UpdateWallpaper
+    fi
+
+    sleep 1s
+done
+

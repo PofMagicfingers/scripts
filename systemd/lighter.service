@@ -1,0 +1,11 @@
+[Unit]
+Description=Start a light manager
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/bash -l -c lighter
+
+[Install]
+WantedBy=default.target
+
